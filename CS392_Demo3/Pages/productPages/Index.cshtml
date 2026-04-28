@@ -1,0 +1,48 @@
+﻿@page
+@model CS392_Demo3.Pages.ProductPages.IndexModel
+
+<h2>Product List</h2>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New Product</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>In Stock</th>
+            <th>Tags</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var product in Model.Products)
+        {
+            <tr>
+                <td>@product.name</td>
+                <td>@product.price</td>
+                <td>@product.category</td>
+                <td>@product.inStock</td>
+                <td>@string.Join(", ", product.tags ?? new List<string>())</td>
+
+                <td>
+                    <a class="btn btn-sm btn-info"
+                       asp-page="Details"
+                       asp-route-id="@product.Id">Details</a>
+
+                    <a class="btn btn-sm btn-warning"
+                       asp-page="Edit"
+                       asp-route-id="@product.Id">Edit</a>
+
+                    <a class="btn btn-sm btn-danger"
+                       asp-page="Delete"
+                       asp-route-id="@product.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

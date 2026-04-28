@@ -1,0 +1,66 @@
+﻿I don't see the tables related to identity created in my database and I can not generate the pages related to identity
+
+Step-by-step
+1.	Optional but recommended — add a design-time factory so EF tools can reliably construct ApplicationDbContext during design time:
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+
+namespace CS392_Demo3.Data
+{
+    public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+    {
+        public ApplicationDbContext CreateDbContext(string[] args)
+        {
+            var env = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var conn = configuration.GetConnectionString("ApplicationDbContext")
+                ?? throw new InvalidOperationException("Connection string 'ApplicationDbContext' not found.");
+
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            optionsBuilder.UseSqlServer(conn);
+
+            return new ApplicationDbContext(optionsBuilder.Options);
+        }
+    }
+}
+
+2.	Rebuild the solution.
+3.	Create and apply migrations for ApplicationDbContext (choose either PMC or dotnet CLI):
+•	Package Manager Console (Visual Studio)
+•	Set Default project = this web project (contains ApplicationDbContext)
+•	Set Startup Project = this web project
+•	Run:
+•	Add-Migration IdentityInit -Context ApplicationDbContext -OutputDir Data\Migrations\Application
+•	Update-Database -Context ApplicationDbContext
+•	dotnet CLI
+•	From project folder:
+•	dotnet ef migrations add IdentityInit --context ApplicationDbContext --output-dir Data/Migrations/Application
+•	dotnet ef database update --context ApplicationDbContext
+4.	Verify tables
+•	Inspect your database (SQL Server) and confirm tables like AspNetUsers, AspNetRoles, AspNetUserRoles, etc. exist.
+5.	Scaffold Identity pages (after DB is ready)
+•	Visual Studio: Right-click project -> Add -> New Scaffolded Item -> Identity.
+•	Select files you need (or scaffold all).
+•	For Data Context class choose ApplicationDbContext.
+•	Choose your layout page if requested.
+•	Or using codegenerator (if you prefer CLI):
+•	dotnet tool install --global dotnet-aspnet-codegenerator
+•	dotnet aspnet-codegenerator identity -dc CS392_Demo3.Data.ApplicationDbContext --files "Account.Register;Account.Login" -outDir Pages\Identity -force
+Troubleshooting checklist
+•	Confirm appsettings.json has ConnectionStrings:ApplicationDbContext (you already fixed this).
+•	Ensure Microsoft.EntityFrameworkCore.Tools package is installed (you have it).
+•	Make sure the PMC Default Project + Startup Project are set correctly (common cause of tools running against wrong project).
+•	If Add-Migration still complains it cannot find the context, the design-time factory above will usually fix it; otherwise ensure ApplicationDbContext is public and in the same assembly.
+•	Rebuild before running migrations.
+•	If using user secrets or environment-specific connection strings, make sure the factory reads the same source or test with a hard-coded connection (temporarily) to isolate the issue.
+Tell me the exact error you see if any step fails and I’ll provide targeted fixes.
+

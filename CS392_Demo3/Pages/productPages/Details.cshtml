@@ -1,0 +1,64 @@
+﻿@page "/ProductPages/Details"
+@model CS392_Demo3.Pages.ProductPages.DetailsModel
+
+<h2>Product Details</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+
+        <h4>@Model.Product.name</h4>
+
+        <p><strong>Price:</strong> @Model.Product.price</p>
+        <p><strong>Category:</strong> @Model.Product.category</p>
+        <p><strong>In Stock:</strong> @Model.Product.inStock</p>
+
+        <p>
+            <strong>Tags:</strong>
+            @string.Join(", ", Model.Product.tags ?? new List<string>())
+        </p>
+
+        <h5>Specifications</h5>
+        <ul>
+            @if (Model.Product.specifications != null)
+            {
+                if (!string.IsNullOrEmpty(Model.Product.specifications.color))
+                {
+                    <li>Color: @Model.Product.specifications.color</li>
+                }
+                if (!string.IsNullOrEmpty(Model.Product.specifications.brand))
+                {
+                    <li>Brand: @Model.Product.specifications.brand</li>
+                }
+                if (!string.IsNullOrEmpty(Model.Product.specifications.players))
+                {
+                    <li>Players: @Model.Product.specifications.players</li>
+                }
+                if (!string.IsNullOrEmpty(Model.Product.specifications.charge))
+                {
+                    <li>Charge: @Model.Product.specifications.charge</li>
+                }
+                if (!string.IsNullOrEmpty(Model.Product.specifications.warranty))
+                {
+                    <li>Warranty: @Model.Product.specifications.warranty</li>
+                }
+            }
+        </ul>
+
+        <h5>Reviews</h5>
+        <ul>
+            @if (Model.Product.reviews != null)
+            {
+                foreach (var review in Model.Product.reviews)
+                {
+                    <li>
+                        <strong>@review.user</strong> — Rating: @review.rating
+                        <br />
+                        @review.comment
+                    </li>
+                }
+            }
+        </ul>
+
+        <a asp-page="Index" class="btn btn-secondary mt-3">Back to List</a>
+    </div>
+</div>

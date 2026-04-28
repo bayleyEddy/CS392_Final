@@ -1,0 +1,48 @@
+﻿@page
+@model CS392_Demo3.Pages.departmentPages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Department[0].DName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Department[0].MgrSsn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Department[0].MgrStartDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Department) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MgrSsn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MgrStartDate)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.DNumber">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.DNumber">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.DNumber">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

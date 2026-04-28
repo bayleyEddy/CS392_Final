@@ -1,0 +1,11 @@
+﻿@page "/ProductPages/Delete"
+@model CS392_Demo3.Pages.ProductPages.DeleteModel
+
+<h2>Delete Product</h2>
+
+<p>Do you want to delete <strong>@Model.Product.name</strong>?</p>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
