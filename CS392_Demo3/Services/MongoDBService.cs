@@ -11,16 +11,12 @@ namespace CS392_Demo3.Services
 
         public MongoDBService(IConfiguration configuration)
         {
-            var client = new MongoClient(
-                configuration["MongoDBSettings:ConnectionString"]);
-
-            var database = client.GetDatabase(
-                configuration["MongoDBSettings:DatabaseName"]);
-
-            _products = database.GetCollection<Product>(
-                configuration["MongoDBSettings:CollectionName"]);
+            var client = new MongoClient(configuration["MongoDBSettings:ConnectionString"]);
+            var database = client.GetDatabase(configuration["MongoDBSettings:DatabaseName"]);
+            _products = database.GetCollection<Product>(configuration["MongoDBSettings:CollectionName"]);
         }
 
+        // BASIC CRUD
         public async Task<List<Product>> GetAllAsync() =>
             await _products.Find(_ => true).ToListAsync();
 
@@ -35,5 +31,28 @@ namespace CS392_Demo3.Services
 
         public async Task DeleteAsync(string id) =>
             await _products.DeleteOneAsync(x => x.Id == id);
+
+        // FILTERING FOR CHATBOT
+        public async Task<List<Product>> FilterProductsAsync(string category, double? maxPrice, bool? inStock)
+        {
+            var filter = Builders<Product>.Filter.Empty;
+
+            // Case-insensitive partial match for category
+            if (!string.IsNullOrEmpty(category))
+            {
+                filter &= Builders<Product>.Filter.Regex(
+                    p => p.category,
+                    new MongoDB.Bson.BsonRegularExpression(category, "i")
+                );
+            }
+
+            if (maxPrice.HasValue)
+                filter &= Builders<Product>.Filter.Lte(p => p.price, maxPrice.Value);
+
+            if (inStock.HasValue)
+                filter &= Builders<Product>.Filter.Eq(p => p.inStock, inStock.Value);
+
+            return await _products.Find(filter).ToListAsync();
+        }
     }
 }
